@@ -1,22 +1,23 @@
-import random
 import tkinter as tk
 
-HEX_PALETTE = "0123456789abcdef"
-HEX_DIGITS = set(HEX_PALETTE)
-MIN_HEX_LENGTH = 6
-SHORTHAND_HEX_LENGTH = 3
-LUMINANCE_THRESHOLD = 0.5
+from colors import (
+    DEFAULT_COLOR,
+    best_contrast_color,
+    is_valid_hex,
+    normalize_hex,
+    random_hex_color,
+)
+
 ERROR_MESSAGE_DURATION_MS = 900
 
 WINDOW_TITLE = "Cool Colors"
 WINDOW_GEOMETRY = "500x500"
 WINDOW_BG = "grey"
-DEFAULT_COLOR = "#000000"
 
 TITLE_FONT = ("rockwell", 20, "bold")
 TITLE_FG = "snow"
 LABEL_FONT = ("", 15, "italic", "bold")
-LABEL_FG = "white"
+LABEL_FG_DEFAULT = "white"
 ENTRY_FONT = ("", 15, "bold")
 ENTRY_WIDTH = 10
 GENERATE_BTN_TEXT = "Generate"
@@ -26,36 +27,6 @@ SEARCH_BTN_TEXT = "Search"
 SEARCH_BTN_FG = "white"
 SEARCH_BTN_BG = "orange"
 ERROR_FG = "red"
-ERROR_FG_DEFAULT = "white"
-
-
-def luminance(hex_color: str) -> float:
-    r = int(hex_color[1:3], 16)
-    g = int(hex_color[3:5], 16)
-    b = int(hex_color[5:7], 16)
-    return (0.299 * r + 0.587 * g + 0.114 * b) / 255
-
-
-def best_contrast_color(hex_color: str) -> str:
-    return "black" if luminance(hex_color) > LUMINANCE_THRESHOLD else "white"
-
-
-def is_valid_hex(value: str) -> bool:
-    cleaned = value.strip().lstrip("#")
-    if len(cleaned) not in (SHORTHAND_HEX_LENGTH, MIN_HEX_LENGTH):
-        return False
-    return all(c in HEX_DIGITS for c in cleaned)
-
-
-def normalize_hex(value: str) -> str:
-    cleaned = value.strip().lstrip("#").lower()
-    if len(cleaned) == SHORTHAND_HEX_LENGTH:
-        cleaned = "".join(ch * 2 for ch in cleaned)
-    return f"#{cleaned}"
-
-
-def random_hex_color() -> str:
-    return f"#{''.join(random.choice(HEX_PALETTE) for _ in range(MIN_HEX_LENGTH))}"
 
 
 class ColorPallet:
@@ -120,7 +91,7 @@ class ColorPallet:
             text="",
             bg=WINDOW_BG,
             font=LABEL_FONT,
-            fg=ERROR_FG_DEFAULT,
+            fg=LABEL_FG_DEFAULT,
         )
         self.error_label.pack()
 
@@ -128,9 +99,7 @@ class ColorPallet:
         self.color = hex_color
         self.color_frame.configure(background=hex_color)
         contrast = best_contrast_color(hex_color)
-        self.color_label.configure(
-            text=hex_color, fg=contrast, bg=hex_color
-        )
+        self.color_label.configure(text=hex_color, fg=contrast, bg=hex_color)
         self.hex_entry.delete(0, tk.END)
         self.hex_entry.insert(0, hex_color)
         self.hex_entry.focus()
@@ -143,14 +112,13 @@ class ColorPallet:
         if not is_valid_hex(entry_value):
             self._show_error("Invalid Color Code...")
             return
-        hex_color = normalize_hex(entry_value)
-        self.set_color(hex_color)
+        self.set_color(normalize_hex(entry_value))
 
     def _show_error(self, message: str) -> None:
         self.error_label.configure(text=message, fg=ERROR_FG)
         self.error_label.after(
             ERROR_MESSAGE_DURATION_MS,
-            lambda: self.error_label.configure(text="", fg=ERROR_FG_DEFAULT),
+            lambda: self.error_label.configure(text="", fg=LABEL_FG_DEFAULT),
         )
 
 
