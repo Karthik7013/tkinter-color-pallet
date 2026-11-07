@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "color-pallet"
+version = "1.0.0"
+description = "A Tkinter color palette generator."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Karthik" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+color-pallet = "main:main"
+
+[tool.setuptools]
+py-modules = ["main", "colors"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
